@@ -8,7 +8,7 @@ import matplotlib.patches as patches
 # print(os.getcwd())
 
 img = None
-data = pd.read_csv('Scripts/csv/POI5.csv')
+data = pd.read_csv('CorrelationProof/csv/POI5.csv')
 rows = data.values
 
 index = 0
@@ -33,5 +33,5 @@ for row in rows:
     plt.gca().add_patch(rect)
 
     index += 1
-    plt.pause(1)
+    plt.pause(0.5)
     plt.draw()
