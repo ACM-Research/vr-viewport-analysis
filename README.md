@@ -6,10 +6,10 @@ Optimizing VR videos is often a necessity as network usage exceeds the maximum b
 
 ## Hypothesis
 
-Through the taxonomic classification of VR Viewport videos and the usage of machine learning algorithms on moving central objects we can significantly reduce data bandwidth with viewport prediction based on how fast user viewport speeds are.
+Through the taxonomic classification of VR Viewport videos and the usage of machine learning algorithms on moving central objects we can significantly reduce data bandwidth with viewport prediction based on how fast user viewport rotation speeds are.
 
 ## Progress
 
-1. Goal: Determine the margin of error for the correlation between the viewport data and salient feature data with Python
-2. **First part**: Determine if we can use salient features/if they correlate
-3. **Second part**: if we determine that salient features are a good representation of what people are looking at, determine how we can use salient features
+1. **Goal:** Determine the margin of error for the correlation between the viewport data and salient feature data with Python
+2. **First part**: Determine if we can use salient features / if they correlate to our viewport data
+3. **Second part**: If we determine that salient features are a good representation of what people are looking at, we will determine how we can use salient features to implement viewport adaptation.
