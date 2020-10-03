@@ -10,13 +10,17 @@ print(os.getcwd())
 
 def play_video():
     img = None
-    vid_id = "23"
+    vid_id = "24"
 
     POI_data = pd.read_excel('Finished POI Spreadsheets/' + vid_id + ' POI Finished.xlsx')
     POI_rows = POI_data.values
 
-    trace_data = pd.read_csv("Experiment Data/Traces/0Z4VWJ/0Z4VWJ_" + vid_id + ".csv")
-    trace_rows = trace_data.values
+    trace_rows_all = []
+    userFolders = [trace for trace in os.listdir('CorrelationProof/overlays/GroupByVideos/' + vid_id)]
+    for user in userFolders:
+        trace_data = pd.read_csv('CorrelationProof/overlays/GroupByVideos/' + vid_id + '/' + user)
+        trace_rows = trace_data.values
+        trace_rows_all.append(trace_rows)
 
     index = 0
     for row in POI_rows:
@@ -32,16 +36,17 @@ def play_video():
         draw_patches(plt, row)
         
         # draw user trace points
-        trace_row = trace_rows[index * 30]
-        arr = [trace_row[5], trace_row[6], trace_row[7]]
-        x, y = ConvVec2Angl(arr)
-        x = ((x+180)/360)*im.size[0]
-        y = ((90-y)/180)*im.size[1]
-        draw_rectrangle(plt, x, y, 'g')
+        for trace_rows in trace_rows_all:
+            trace_row = trace_rows[index * 30]
+            arr = [trace_row[5], trace_row[6], trace_row[7]]
+            x, y = ConvVec2Angl(arr)
+            x = ((x+180)/360)*im.size[0]
+            y = ((90-y)/180)*im.size[1]
+            draw_rectrangle(plt, x, y, 'g')
 
         # redraw
         index += 1
-        plt.pause(0.5)
+        plt.pause(1)
         plt.draw()
 
 def draw_patches(plt, row):
@@ -52,7 +57,7 @@ def draw_patches(plt, row):
         draw_rectrangle(plt, cx, cy, 'r')
 
 def draw_rectrangle(plt, x1, y1, color):
-    rect = patches.Rectangle((x1,y1),30,30,linewidth=1,edgecolor=color,facecolor='none')
+    rect = patches.Rectangle((x1,y1),60,60,linewidth=3,edgecolor=color,facecolor='none')
     plt.gca().add_patch(rect)
 
 def cart2sph(x,y,z):

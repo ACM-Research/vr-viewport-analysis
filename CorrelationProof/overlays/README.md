@@ -8,11 +8,13 @@ To prove that there is a correlation, it might be easier to first observe users'
 
 `overlay.py` overlays both user viewports (from `Experiment Data/Traces/USER_ID/`) and salient feature information (from `Salient Feature Traces/VIDEO_ID/POI.xlsx`) onto the video frames (stored in `Experiment Data/SampleVideos/SourceFrames/VIDEO_ID` by `vidToFrames.py`). This enables us to visualize the user's viewport through each individual frame of the videos.
 
+`groupTraceByVid.py` groups Traces by video ID rather than user ID. Results are stored in `CorrelationProof/overlays/GroupByVideos` (might consider moving to experiment data instead?)
+
 ## Technical Implementation
 
 `vidToFrames.py` uses OpenCV to read frame by frame and write every 30 frames.
 
-`overlay.py` uses conversion algorithms from the MATLAB scripts (`overlay.m`) to convert user viewport quaternions into `(x,y)` coordinates. 
+`overlay.py` uses conversion algorithms from the MATLAB scripts (`overlay.m`) to convert users' viewport quaternions into `(x,y)` coordinates. 
 
 ## How to Run
 
