@@ -12,16 +12,16 @@ def play_video():
     img = None
     vid_id = "23"
 
-    POI_data = pd.read_excel('../Finished POI Spreadsheets/' + vid_id + ' POI Finished.xlsx')
+    POI_data = pd.read_excel('Finished POI Spreadsheets/' + vid_id + ' POI Finished.xlsx')
     POI_rows = POI_data.values
 
-    trace_data = pd.read_csv("../Experiment Data/Traces/0Z4VWJ/0Z4VWJ_" + vid_id + ".csv")
+    trace_data = pd.read_csv("Experiment Data/Traces/0Z4VWJ/0Z4VWJ_" + vid_id + ".csv")
     trace_rows = trace_data.values
 
     index = 0
     for row in POI_rows:
         # get frame
-        im = Image.open('../Experiment Data/SampleVideos/SourceFrames/' + vid_id + '/frame' + str(index * 30 + 1) + '.jpg')
+        im = Image.open('Experiment Data/SampleVideos/SourceFrames/' + vid_id + '/frame' + str(index * 30 + 1) + '.jpg')
         if img is None:
             img = plt.imshow(im)
         else:
