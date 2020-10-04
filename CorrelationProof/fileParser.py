@@ -62,7 +62,7 @@ class SalientFeatureParser:
             filepath = file.name
             # We, uh, don't actually need this file handle. Just its path.
             file.close()
-        spreadsheet = openpyxl.load_workbook(filepath)
+        spreadsheet = openpyxl.load_workbook(filepath, data_only=True)
         sheet = spreadsheet.active
         self.sheet = sheet
 
@@ -82,17 +82,17 @@ class SalientFeatureParser:
         x = xcell.value
         y = ycell.value
 
-        if type(frame) != float:
-            raise self.ParseFailException(f"Frame not an integer on row {framecell.row}")
-        if type(x) != float and x is not None:
-            raise self.ParseFailException(f"X position not an integer on row {xcell.row}, column{xcell.column}")
+        if type(frame) not in (float, int):
+            raise self.ParseFailException(f"Frame not a number on row {framecell.row}")
+        if type(x) not in (float, int) and x is not None:
+            raise self.ParseFailException(f"X position not a number on row {xcell.row}, column {xcell.column}")
         # More than anything, this is a jab at our research team, who in many cases provided extremely incomplete
         # salient feature data, with sometimes hundreds of positions missing or
         # even only one or two positions provided at all.
         if x is None:
             warn(f"Missing X position on row {xcell.row}, column {xcell.column}")
-        if type(y) != float and y is not None:
-            raise self.ParseFailException(f"Y position not an integer on row {y.row}, column {y.column}")
+        if type(y) not in (float, int) and y is not None:
+            raise self.ParseFailException(f"Y position not a number on row {y.row}, column {y.column}")
         if y is None:
             warn(f"Missing X position on row {ycell.row}, column {ycell.column}", category=RuntimeWarning)
 
