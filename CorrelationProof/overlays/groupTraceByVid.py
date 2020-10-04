@@ -2,6 +2,7 @@ import os
 import re
 from shutil import copyfile
 
+
 def mkdir(directory):
     if not os.path.exists(directory):
         os.makedirs(directory)
@@ -9,12 +10,12 @@ def mkdir(directory):
 
 def main():
     # get all user folders in Traces
-    userFolders = [trace.path for trace in os.scandir('Experiment Data/Traces/')]
-    for user in userFolders:
+    userfolders = [trace.path for trace in os.scandir('Experiment Data/Traces/')]
+    for user in userfolders:
         user_id = user.split('Traces/')[1]
         
         # remove videos if they don't have ID (just in case)
-        regex = "_([0-9]+)\.csv"
+        regex = r"_([0-9]+)\.csv"
         vid_ids = [{'filename': filename, 'id': re.findall(regex, filename)} for filename in os.listdir(user)]
         vid_ids = [item for item in vid_ids if len(item["id"]) > 0]
 

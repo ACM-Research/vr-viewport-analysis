@@ -1,9 +1,11 @@
 import cv2
 import os
 
+
 def mkdir(directory):
     if not os.path.exists(directory):
         os.makedirs(directory)
+
 
 vid_id = 24
 cap = cv2.VideoCapture('Experiment Data/SampleVideos/Source/' + str(vid_id) + '.mp4')
