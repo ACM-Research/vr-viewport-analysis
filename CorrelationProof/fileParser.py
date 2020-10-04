@@ -10,7 +10,7 @@ from openpyxl.cell.cell import Cell
 
 class SalientFeaturePosition:
     featureNumber: int
-    positions: List[int, Tuple[int, int]]
+    positions: Dict[int, Tuple[int, int]]
 
     def __init__(self, featurenumber: int):
         self.featureNumber = featurenumber
@@ -18,7 +18,7 @@ class SalientFeaturePosition:
         self.positions = {}  # {frame, (X, Y)}
 
     def add(self, frame, x, y):
-        self.positions.append(x, y)
+        self.positions[frame] = (x, y)
 
     def __gt__(self, other):
         return self.featureNumber > other.featureNumber

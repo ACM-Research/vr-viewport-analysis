@@ -8,14 +8,14 @@ def mkdir(directory):
 
 
 vid_id = 24
-cap = cv2.VideoCapture('Experiment Data/SampleVideos/Source/' + str(vid_id) + '.mp4')
-mkdir("Experiment Data/SampleVideos/SourceFrames/" + str(vid_id))
+cap = cv2.VideoCapture(f'Experiment Data/SampleVideos/Source/{vid_id}.mp4')
+mkdir("Experiment Data/SampleVideos/SourceFrames/{vid_id}")
 
 count = 0
 while cap.isOpened():
-    ret,frame = cap.read()
+    ret, frame = cap.read()
     if count % 30 == 1:
-        cv2.imwrite("Experiment Data/SampleVideos/SourceFrames/" + str(vid_id) + "/frame%d.jpg" % count, frame)
+        cv2.imwrite(f"Experiment Data/SampleVideos/SourceFrames/{vid_id}/frame{count}.jpg", frame)
     count = count + 1
 
 cap.release()

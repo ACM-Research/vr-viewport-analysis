@@ -13,20 +13,20 @@ def play_video():
     img = None
     vid_id = "24"
 
-    poi_data = pd.read_excel('Finished POI Spreadsheets/' + vid_id + ' POI Finished.xlsx')
+    poi_data = pd.read_excel(f'Finished POI Spreadsheets/{vid_id} POI Finished.xlsx')
     poi_rows = poi_data.values
 
     trace_rows_all = []
-    user_folders = [trace for trace in os.listdir('CorrelationProof/overlays/GroupByVideos/' + vid_id)]
+    user_folders = [trace for trace in os.listdir(f'CorrelationProof/overlays/GroupByVideos/{vid_id}')]
     for user in user_folders:
-        trace_data = pd.read_csv('CorrelationProof/overlays/GroupByVideos/' + vid_id + '/' + user)
+        trace_data = pd.read_csv(f'CorrelationProof/overlays/GroupByVideos/{vid_id}/{user}')
         trace_rows = trace_data.values
         trace_rows_all.append(trace_rows)
 
     index = 0
     for row in poi_rows:
         # get frame
-        im = Image.open('Experiment Data/SampleVideos/SourceFrames/' + vid_id + '/frame' + str(index * 30 + 1) + '.jpg')
+        im = Image.open(f'Experiment Data/SampleVideos/SourceFrames/{vid_id}/frame{index * 30 + 1}.jpg')
         if img is None:
             img = plt.imshow(im)
         else:

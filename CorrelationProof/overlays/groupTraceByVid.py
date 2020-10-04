@@ -21,9 +21,9 @@ def main():
 
         for vid_id in vid_ids:
             # copy over to grouped by videos directory
-            base_dir = 'CorrelationProof/overlays/GroupByVideos/' + vid_id['id'][0]
+            base_dir = f"CorrelationProof/overlays/GroupByVideos/{vid_id['id'][0]}"
             mkdir(base_dir)
-            copyfile(user + "/" + vid_id['filename'], base_dir + "/" + user_id + ".csv")
+            copyfile(f"{user}/{vid_id['filename']}", f"{base_dir}/{user_id}.csv")
 
 
 if __name__ == '__main__':
