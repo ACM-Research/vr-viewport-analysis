@@ -6,7 +6,7 @@ To prove that there is a correlation, it might be easier to first observe users'
 
 `vidToFrames.py` is a helper script that uses OpenCV to turn `.mp4` files into frames (every 30 frames). It reads in a video from `Experiment Data/SampleVideos/Source/VIDEO_ID.mp4` and outputs the frames into `Experiment Data/SampleVideos/SourceFrames/VIDEO_ID`. Although there are frames available in the `Salient Feature Traces/` folder, those have grids overlayed on them and are not full resolution.
 
-`overlay.py` overlays both user viewports (from `Experiment Data/Traces/USER_ID/`) and salient feature information (from `Salient Feature Traces/VIDEO_ID/POI.xlsx`) onto the video frames (stored in `Experiment Data/SampleVideos/SourceFrames/VIDEO_ID` by `vidToFrames.py`). This enables us to visualize the user's viewport through each individual frame of the videos.
+`overlay.py` overlays both user viewports (from `Experiment Data/Traces/USER_ID/`) and salient feature information (from `Salient Feature Traces/VIDEO_ID/POI.xlsx`) onto the video frames (stored in `Experiment Data/SampleVideos/SourceFrames/VIDEO_ID` by `vidToFrames.py`). This enables us to visualize the user's viewport through each individual frame of the videos. The script also outputs `data.txt`, which contains a list of frames with their corresponding salient feature and user viewport traces.
 
 `groupTraceByVid.py` groups Traces by video ID rather than user ID. Results are stored in `CorrelationProof/overlays/GroupByVideos` (might consider moving to experiment data instead?)
 
