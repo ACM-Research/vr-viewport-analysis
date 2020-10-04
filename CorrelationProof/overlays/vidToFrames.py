@@ -1,22 +1,41 @@
+from warnings import warn
+
 import cv2
 import os
+from CorrelationProof.fileParser import SalientFeaturePosition
 
 
-def mkdir(directory):
-    if not os.path.exists(directory):
-        os.makedirs(directory)
+class FrameGenerator:
+    cap: cv2.cv2.VideoCapture
+    vid_id: int
 
+    def __init__(self, vidid: int, requestedframes: SalientFeaturePosition = None):
+        self.vid_id = vidid
+        self.videoPath = f'Experiment Data/SampleVideos/Source/{self.vid_id}.mp4'
+        self.framesPath = f"Experiment Data/SampleVideos/SourceFrames/{self.vid_id}"
+        self.cap = cv2.VideoCapture(self.videoPath)
+        self.requestedFrames = requestedframes
 
-vid_id = 24
-cap = cv2.VideoCapture(f'Experiment Data/SampleVideos/Source/{vid_id}.mp4')
-mkdir("Experiment Data/SampleVideos/SourceFrames/{vid_id}")
+    def __del__(self):
+        self.cap.release()
+        cv2.destroyAllWindows()
 
-count = 0
-while cap.isOpened():
-    ret, frame = cap.read()
-    if count % 30 == 1:
-        cv2.imwrite(f"Experiment Data/SampleVideos/SourceFrames/{vid_id}/frame{count}.jpg", frame)
-    count = count + 1
+    def generateframes(self):
+        # Caching mechanism- don't generate if frames were already rendered
+        if os.path.exists(self.framesPath):
+            return
+        self.mkdir(self.framesPath)
+        count = 0
+        while self.cap.isOpened():
+            ret, frame = self.cap.read()
+            # This cleanly exits if we can't grab another frame
+            if not ret:
+                break
+            if count % 30 == 1:
+                cv2.imwrite(f"{self.framesPath}/frame{count}.jpg", frame)
+            count += 1
 
-cap.release()
-cv2.destroyAllWindows()
+    @staticmethod
+    def mkdir(directory: str):
+        if not os.path.exists(directory):
+            os.makedirs(directory)

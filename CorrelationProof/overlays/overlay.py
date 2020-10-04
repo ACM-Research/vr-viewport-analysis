@@ -5,14 +5,14 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 import math
 import json
+from CorrelationProof.overlays.vidToFrames import FrameGenerator
 
 import os
 print(os.getcwd())
 
 
-def play_video(draw=True):
+def play_video(vid_id, draw=True):
     img = None
-    vid_id = "24"
 
     poi_data = pd.read_excel(f'Finished POI Spreadsheets/{vid_id} POI Finished.xlsx')
     poi_rows = poi_data.values
@@ -101,9 +101,12 @@ def convvec2angl(vector):
 
 
 def main():
+    vid_id = 24
+    # Generate frames as needed.
+    FrameGenerator(vid_id).generateframes()
     # Change False to True to show overlay
     # However, False will run a lot faster (for outputting data file)
-    data = play_video(False)
+    data = play_video(vid_id, True)
     with open("CorrelationProof/overlays/data.txt", 'w') as f:
         json.dump(data, f)
 
