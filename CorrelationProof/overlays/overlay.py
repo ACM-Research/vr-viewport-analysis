@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 import math
 import json
-from CorrelationProof.overlays.vidToFrames import FrameGenerator
+# from CorrelationProof.overlays.vidToFrames import FrameGenerator
 
 import os
 print(os.getcwd())
@@ -64,7 +64,7 @@ def play_video(vid_id, draw=True):
                 draw_rectangle(plt, x, y, 'g')
 
         # add to output data
-        process_data.append({'index': index, 'salient': salient_points, 'trace': all_user_points})
+        process_data.append({'index': index, 'salient': salient_points, 'trace': all_user_points, 'width': im_size0, 'height': im_size1})
 
         # redraw
         index += 1
@@ -103,10 +103,10 @@ def convvec2angl(vector):
 def main():
     vid_id = 24
     # Generate frames as needed.
-    FrameGenerator(vid_id).generateframes()
+    # FrameGenerator(vid_id).generateframes()
     # Change False to True to show overlay
     # However, False will run a lot faster (for outputting data file)
-    data = play_video(vid_id, True)
+    data = play_video(vid_id, False)
     with open("CorrelationProof/overlays/data.txt", 'w') as f:
         json.dump(data, f)
 

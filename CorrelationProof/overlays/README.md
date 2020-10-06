@@ -10,6 +10,10 @@ To prove that there is a correlation, it might be easier to first observe users'
 
 `groupTraceByVid.py` groups Traces by video ID rather than user ID. Results are stored in `CorrelationProof/overlays/GroupByVideos` (might consider moving to experiment data instead?)
 
+`visualizeCorrelation.py` shows a visualization of different threshold radius values. In the demo, there are two subplots. The first shows the image with salient features and traces overlayed (with circles of radius `THRESHOLD`) to show which points are inside of the threshold value. The bottom chart shows the percentage of points that are included by at least one of the circles. In the console, the average number of points is also being printed out for testing.
+
+![demo](demo.gif)
+
 ## Technical Implementation
 
 `vidToFrames.py` uses OpenCV to read frame by frame and write every 30 frames.
