@@ -101,13 +101,13 @@ def convvec2angl(vector):
 
 
 def main():
-    vid_id = 24
+    vid_id = 23
     # Generate frames as needed.
     # FrameGenerator(vid_id).generateframes()
     # Change False to True to show overlay
     # However, False will run a lot faster (for outputting data file)
     data = play_video(vid_id, False)
-    with open("CorrelationProof/overlays/data.txt", 'w') as f:
+    with open("CorrelationProof/overlays/data23.txt", 'w') as f:
         json.dump(data, f)
 
 
