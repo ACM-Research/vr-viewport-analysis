@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 
 
-THRES = 500
+THRES = 60
 vid_id = 24 # TODO
 
 
@@ -21,18 +21,18 @@ def dist(p1, p2):
 
 
 def animate(f):
-    global ij, total, img, vid_id
+    global ij, total, img, vid_id, circleCount, totalArea, pointCount
 
     # graph salient points
     points = data[f]["salient"]
     graph.set_data(pointsToXY(points))
 
-    # show image
+    #show image
     im = Image.open(f"Experiment Data/SampleVideos/SourceFrames/{vid_id}/frame{ij * 30 + 1}.jpg")  # .transpose(Image.FLIP_TOP_BOTTOM)
     if img is None:
         img = axes[0].imshow(im)
     else:
-        img.set_data(im)
+       img.set_data(im)
 
     # remove circles from last animation frame
     for obj in axes[0].findobj(match=type(plt.Circle(1, 1))):
@@ -64,9 +64,13 @@ def animate(f):
     p = len(inRangePoints) / len(points2) * 100
     line.append(p)
     ij += 1
-    total += p
-    print("Average: " + str(total / ij))
-
+    total += len(inRangePoints) 
+    pointCount += len(points2)
+    circleArea = len(points)*3.14*THRES*THRES / 1920000
+    totalArea += circleArea
+    circleCount += len(points)
+    #print("Average: " + str(total / ij)+ ", " + str(circleArea)) 
+    print( (1.0*total/pointCount) / (1.0*totalArea/circleCount))
     # display points for image subplot
     in_range.set_data(pointsToXY(inRangePoints))
     others.set_data(pointsToXY(outRangePoints))
@@ -99,12 +103,18 @@ ij = 0
 line = []
 total = 0
 img = None
+circleCount = 0
+totalArea = 0
+pointCount = 0
+
 
 # animation (59 goes up to 59 * 30 + 1 = 1771'th frame)
-ani = FuncAnimation(fig, animate, frames=59, interval=50, repeat=False)
+ani = FuncAnimation(fig, animate, frames=59, interval=500, repeat=False)
 
 # uncomment to save (alternate comment with plt.show())
 # ani.save('CorrelationProof/overlays/demo.gif', writer='imagemagick', fps=3)
 
 # show animation (alternate comment with ani.save())
 plt.show()
+print(1.0*totalArea/circleCount)
+print(1.0*total/ij)
