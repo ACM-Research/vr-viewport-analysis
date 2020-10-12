@@ -4,6 +4,8 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 import math
 import json
+
+from QuestionnaireParser import QuestionnaireParser
 from vidToFrames import FrameGenerator
 from SalientFeatureParser import SalientFeatureParser
 
@@ -11,7 +13,13 @@ import os
 print(os.getcwd())
 
 
-def play_video(vid_id, draw=True):
+def sample_exclusion_fxn(predicate: str, questionnaire: QuestionnaireParser) -> bool:
+    """This family of functions dictates how users should be excluded from the process
+    based on their answers from the background questionnaire."""
+    return questionnaire.participants[predicate].vrvideo == 0
+
+
+def play_video(vid_id: str, questionnaire: QuestionnaireParser = None, draw=True):
     img = None
 
     poi_data = pd.read_excel(f'Finished POI Spreadsheets/{vid_id} POI Finished.xlsx')
@@ -20,6 +28,10 @@ def play_video(vid_id, draw=True):
     trace_rows_all = []
     user_folders = [trace for trace in os.listdir(f'CorrelationProof/overlays/GroupByVideos/{vid_id}')]
     for user in user_folders:
+        # Test for exclusion.
+        if QuestionnaireParser is not None:
+            if not sample_exclusion_fxn(user[: user.find('.csv')], questionnaire):
+                continue
         trace_data = pd.read_csv(f'CorrelationProof/overlays/GroupByVideos/{vid_id}/{user}')
         trace_rows = trace_data.values
         trace_rows_all.append(trace_rows)
@@ -102,12 +114,13 @@ def convvec2angl(vector):
 
 def main():
     vid_id = 24
-    parser = SalientFeatureParser()
+    ##salparser = SalientFeatureParser()
+    quesparser = QuestionnaireParser()
     # Generate frames as needed.
-    FrameGenerator(vid_id, parser.features[0]).generateframes()
+    #FrameGenerator(vid_id, salparser.features[0]).generateframes()
     # Change False to True to show overlay
     # However, False will run a lot faster (for outputting data file)
-    data = play_video(vid_id, True)
+    data = play_video(vid_id, questionnaire=quesparser, draw=True)
     with open("CorrelationProof/overlays/data23.txt", 'w') as f:
         json.dump(data, f)
 
