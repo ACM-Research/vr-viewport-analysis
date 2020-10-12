@@ -1,11 +1,11 @@
-import numpy as np
 import pandas as pd
 from PIL import Image
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 import math
 import json
-# from CorrelationProof.overlays.vidToFrames import FrameGenerator
+from vidToFrames import FrameGenerator
+from SalientFeatureParser import SalientFeatureParser
 
 import os
 print(os.getcwd())
@@ -101,12 +101,13 @@ def convvec2angl(vector):
 
 
 def main():
-    vid_id = 23
+    vid_id = 24
+    parser = SalientFeatureParser()
     # Generate frames as needed.
-    # FrameGenerator(vid_id).generateframes()
+    FrameGenerator(vid_id, parser.features[0]).generateframes()
     # Change False to True to show overlay
     # However, False will run a lot faster (for outputting data file)
-    data = play_video(vid_id, False)
+    data = play_video(vid_id, True)
     with open("CorrelationProof/overlays/data23.txt", 'w') as f:
         json.dump(data, f)
 
