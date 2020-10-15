@@ -1,3 +1,5 @@
+from typing import Tuple
+
 import pandas as pd
 from PIL import Image
 import matplotlib.pyplot as plt
@@ -7,7 +9,7 @@ import json
 
 from QuestionnaireParser import QuestionnaireParser
 from vidToFrames import FrameGenerator
-from SalientFeatureParser import SalientFeatureParser
+from SalientFeatureParser import SalientFeatureParser, SalientFeaturePosition
 
 import os
 print(os.getcwd())
@@ -16,14 +18,28 @@ print(os.getcwd())
 def sample_exclusion_fxn(predicate: str, questionnaire: QuestionnaireParser) -> bool:
     """This family of functions dictates how users should be excluded from the process
     based on their answers from the background questionnaire."""
-    return questionnaire.participants[predicate].vrvideo == 0
+    return questionnaire.participants[predicate].mobilevr >= 2
+
+
+class AbstractDataParser:
+    basedir: str
+    vidid: int
+    questionnairepath: str
+    
+    def __init__(self, vidid: int, basedir: str):
+        self.vidid = vidid
+        self.basedir = basedir
+        self.questionnairepath = "/Experiment Data/Quesionnaires/BackgroundQuestionnaire.csv"
+        self.salienttracepath = "/Finished POI Spreadsheets/"
+
+        self.quesparser = QuestionnaireParser(self.basedir + self.questionnairepath)
 
 
 def play_video(vid_id: str, questionnaire: QuestionnaireParser = None, draw=True):
     img = None
 
-    poi_data = pd.read_excel(f'Finished POI Spreadsheets/{vid_id} POI Finished.xlsx')
-    poi_rows = poi_data.values
+    poi_data = SalientFeatureParser(f'Finished POI Spreadsheets/{vid_id} POI Finished.xlsx')
+
 
     trace_rows_all = []
     user_folders = [trace for trace in os.listdir(f'CorrelationProof/overlays/GroupByVideos/{vid_id}')]
@@ -46,7 +62,7 @@ def play_video(vid_id: str, questionnaire: QuestionnaireParser = None, draw=True
 
     index = 0
     process_data = []
-    for row in poi_rows:
+    for frame in poi_data.frameList:
         print(index)
 
         # get frame
@@ -60,8 +76,10 @@ def play_video(vid_id: str, questionnaire: QuestionnaireParser = None, draw=True
                 img.set_data(im)
 
         # draw manually selected salient features
-        frame = row[0]
-        salient_points = draw_patches(plt, row, draw)
+        # frame = row[0]
+        remove_patches(plt, draw)
+        for feature in poi_data.features:
+            salient_points = draw_patches(plt, feature, frame, draw)
 
         # draw user trace points
         all_user_points = []
@@ -73,7 +91,7 @@ def play_video(vid_id: str, questionnaire: QuestionnaireParser = None, draw=True
             y = ((90-y)/180)*im_size1
             all_user_points.append((x, y))
             if draw:
-                draw_rectangle(plt, x, y, 'g')
+                draw_rectangle(plt, (x, y), 'g')
 
         # add to output data
         process_data.append({'index': index, 'salient': salient_points, 'trace': all_user_points, 'width': im_size0, 'height': im_size1})
@@ -87,22 +105,21 @@ def play_video(vid_id: str, questionnaire: QuestionnaireParser = None, draw=True
     return process_data
 
 
-def draw_patches(plotter, row, draw=True):
+def remove_patches(plotter, draw=True):
     if draw:
         [p.remove() for p in reversed(plotter.gca().patches)]
+
+
+def draw_patches(plotter, feature: SalientFeaturePosition, frame: int, draw=True):
     salient_points = []
-    for i in range(1, len(row), 2):
-        cx = row[i]
-        cy = row[i+1]
-        if not math.isnan(cx) and not math.isnan(cy):
-            salient_points.append((cx, cy))
-        if draw:
-            draw_rectangle(plotter, cx, cy, 'r')
+    if draw:
+        if None not in feature.positions[frame]:
+            draw_rectangle(plotter, feature.positions[frame], 'r')
     return salient_points
 
 
-def draw_rectangle(plotter, x1, y1, color):
-    rect = patches.Rectangle((x1, y1), 60, 60, linewidth=3, edgecolor=color, facecolor='none')
+def draw_rectangle(plotter, pos: Tuple[int, int], color):
+    rect = patches.Rectangle(pos, 60, 60, linewidth=3, edgecolor=color, facecolor='none')
     plotter.gca().add_patch(rect)
 
 
@@ -114,14 +131,13 @@ def convvec2angl(vector):
 
 def main():
     vid_id = 24
-    ##salparser = SalientFeatureParser()
     quesparser = QuestionnaireParser()
     # Generate frames as needed.
-    #FrameGenerator(vid_id, salparser.features[0]).generateframes()
+    # FrameGenerator(vid_id, salparser.features[0]).generateframes()
     # Change False to True to show overlay
     # However, False will run a lot faster (for outputting data file)
     data = play_video(vid_id, questionnaire=quesparser, draw=True)
-    with open("CorrelationProof/overlays/data23.txt", 'w') as f:
+    with open("CorrelationProof/overlays/data.txt", 'w') as f:
         json.dump(data, f)
 
 
