@@ -19,6 +19,7 @@ class SalientFeaturePosition:
 
     def add(self, frame, x, y):
         self.positions[frame] = (x, y)
+        self.framecount += 1
 
     def __gt__(self, other):
         return self.featureNumber > other.featureNumber
@@ -34,6 +35,7 @@ class SalientFeatureParser:
     featureCount: int
     sheet: Worksheet
     features: List[SalientFeaturePosition]
+    frameList: List[int]
 
     class ParseFailException(Exception):
         def __init__(self, why):
@@ -42,12 +44,17 @@ class SalientFeatureParser:
     def __init__(self, filepath=None):
         self.featureCount = 0
         self.features = []
+        self.frameList = []
 
         try:
             self.loadsheet(filepath)
             self.countfeatures()
             self.initializefeatures()
             self.importfeatures()
+            # Sort for future use
+            # It should already be sorted in order of ascending frames
+            # But this ensures it
+            self.frameList.sort()
         except self.ParseFailException as exp:
             print("File Parsing Failure!")
             print(f"Reason: {exp.why}")
@@ -99,12 +106,14 @@ class SalientFeatureParser:
         self.features[featurenumber].add(frame, x, y)
 
     def importfeatures(self):
-        for i, featureNumber in zip(range(0, self.featureCount, 2), range(self.featureCount)):
+        for i, featureNumber in zip(range(0, self.featureCount * 2, 2), range(self.featureCount)):
             # frameCol = self.sheet.columns[0]
             # xCol = self.sheet.columns[1 + i]
             # yCol = self.sheet.columns[1 + i + 1]  # Skip frame position, then skip X column
             for row in self.sheet.iter_rows(min_row=2):  # Row 2 for skipping titles
                 frame = row[0]
+                if frame.value not in self.frameList:
+                    self.frameList.append(frame.value)
                 x = row[1 + i]
                 y = row[1 + i + 1]  # Skip frame position, then skip X column
                 self.importfeature(featureNumber, frame, x, y)
