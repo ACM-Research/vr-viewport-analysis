@@ -18,7 +18,8 @@ print(os.getcwd())
 def sample_exclusion_fxn(predicate: str, questionnaire: QuestionnaireParser) -> bool:
     """This family of functions dictates how users should be excluded from the process
     based on their answers from the background questionnaire."""
-    return questionnaire.participants[predicate].mobilevr >= 2
+    #return questionnaire.participants[predicate].mobilevr >= 2
+    return True
 
 
 class Frame:
@@ -50,20 +51,30 @@ class DataParser:
         The expensive operation generatedata() calls all the expensive functions."""
         self.vidid = vidid
         self.basedir = basedir
-        self.questionnairepath = "/Experiment Data/Quesionnaires/BackgroundQuestionnaire.csv"
-        self.salienttracepath = f"/Finished POI Spreadsheets/{self.vidid} POI Finished.xlsx"
-        self.usertracepath = f"CorrelationProof/overlays/GroupByVideos/{self.vidid}"
+        self.questionnairepath = f"{basedir}/Experiment Data/Questionnaires/BackgroundQuestionnaire.csv"
+        self.salienttracepath = f"{basedir}/Finished POI Spreadsheets/{self.vidid} POI Finished.xlsx"
+        self.usertracepath = f"{basedir}/CorrelationProof/overlays/GroupByVideos/{self.vidid}"
         # Format string this with the % method for frame.
-        self.imagepath = f"Experiment Data/SampleVideos/SourceFrames/{self.vidid}/frame%d.jpg"
+        self.imagepath = f"{basedir}/Experiment Data/SampleVideos/SourceFrames/{self.vidid}/frame%d.jpg"
 
         self.frames = {}
         # Cheap to construct- the image isn't actually parsed with Image.open, it's a lazy fxn
         with Image.open(self.imagepath % 1) as im:
             self.imagesize = (im.size[0], im.size[1])
 
+    @staticmethod
+    def convvec2angl(vector):
+        phi = math.degrees(math.asin(vector[1]))
+        theta = math.degrees(math.atan2(vector[0], vector[2]))
+        return theta, phi
+
     def initparsers(self):
-        self.quesparser = QuestionnaireParser(self.basedir + self.questionnairepath)
+        self.quesparser = QuestionnaireParser(self.questionnairepath)
         self.salparser = SalientFeatureParser(self.salienttracepath)
+
+    def generateframes(self):
+        """Generate frames on demand."""
+        FrameGenerator(self.vidid, self.salparser.features[0]).generateframes()
 
     def importusertraces(self):
         """Note that this parser is very simple in nature and doesn't really *need*
@@ -88,26 +99,68 @@ class DataParser:
         self.usertraces = []
         for trace_rows, userid in unparsed_user_traces:
             for frame in self.salparser.frameList:
-                trace_row = trace_rows[frame]
+                trace_row = trace_rows[frame - 1]  # Be careful about indexing!!
                 arr = [trace_row[5], trace_row[6], trace_row[7]]
-                x, y = convvec2angl(arr)
+                x, y = self.convvec2angl(arr)
                 x = ((x+180)/360) * self.imagesize[0]
                 y = ((90-y)/180) * self.imagesize[1]
                 self.usertraces.append((userid, frame, (x, y)))
 
     def generatedata(self):
         self.initparsers()
+        self.generateframes()
         self.importusertraces()
 
 
 class OverlayPlayer:
+    pauseinterval: int
+    salientcolor: str
+    tracecolor: str
     data: DataParser
 
     def __init__(self, parser: DataParser):
         self.data = parser
+        self.salientcolor = 'r'
+        self.tracecolor = 'g'
+        self.pauseinterval = 0.5
+
+    def render(self):
+        for frame in self.data.salparser.frameList:
+            self.renderframe(frame)
+            plt.pause(self.pauseinterval)
+            plt.draw()
 
     def renderframe(self, frame: int):
-        pass
+        # Some salient feature traces may have an extra frame attached that doesn't exist.
+        # Cleanly ignore that frame if it doesn't exist.
+        try:
+            im = Image.open(self.data.imagepath % frame)
+        except FileNotFoundError:
+            return
+        # TODO: Rewrite this using object-oriented pyplot
+        img = plt.imshow(im)
+
+        # Remove the plots from the previous frame.
+        [p.remove() for p in reversed(plt.gca().patches)]
+
+        # Render new Salient Features.
+        for feature in self.data.salparser.features:
+            if None not in feature.positions[frame]:
+                self.renderrectangle(plt, feature.positions[frame], self.salientcolor)
+
+        # Render new User Traces.
+        for trace in self.data.usertraces:
+            # This part is probably super inefficient
+            if trace[1] != frame:
+                continue
+
+            # The predicate function should be added here.
+
+            self.renderrectangle(plt, trace[2], self.tracecolor)
+
+    def renderrectangle(self, plotter, pos: Tuple[int, int], color: str):
+        rect = patches.Rectangle(pos, 60, 60, linewidth=3, edgecolor=color, facecolor='none')
+        plotter.gca().add_patch(rect)
 
 
 def play_video(vid_id: str, questionnaire: QuestionnaireParser = None, draw=True):
@@ -196,22 +249,18 @@ def draw_rectangle(plotter, pos: Tuple[int, int], color):
     plotter.gca().add_patch(rect)
 
 
-def convvec2angl(vector):
-    phi = math.degrees(math.asin(vector[1]))
-    theta = math.degrees(math.atan2(vector[0], vector[2]))
-    return theta, phi
-
-
 def main():
-    vid_id = 24
-    quesparser = QuestionnaireParser()
-    # Generate frames as needed.
-    # FrameGenerator(vid_id, salparser.features[0]).generateframes()
+    # vid_id = 24
+    # quesparser = QuestionnaireParser()
+    # data = play_video(vid_id, questionnaire=quesparser, draw=True)
     # Change False to True to show overlay
     # However, False will run a lot faster (for outputting data file)
-    data = play_video(vid_id, questionnaire=quesparser, draw=True)
-    with open("CorrelationProof/overlays/data.txt", 'w') as f:
-        json.dump(data, f)
+    # with open("CorrelationProof/overlays/data.txt", 'w') as f:
+    #     json.dump(data, f)
+    data = DataParser(24, "C:/Users/qwe/Documents/vr-viewport-analysis")
+    data.generatedata()
+    renderer = OverlayPlayer(data)
+    renderer.render()
 
 
 if __name__ == "__main__":
