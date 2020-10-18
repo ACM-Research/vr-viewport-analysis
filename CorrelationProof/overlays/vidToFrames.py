@@ -1,20 +1,28 @@
-from warnings import warn
+"""Note to self...
+A better optimization would be to deliver frames on demand
+and spin off a task to flush that frame to disk."""
+
+
+
+
+
 
 import cv2
 import os
-from CorrelationProof.fileParser import SalientFeaturePosition
+from CorrelationProof.overlays.SalientFeatureParser import SalientFeaturePosition
 
 
 class FrameGenerator:
     cap: cv2.cv2.VideoCapture
     vid_id: int
 
-    def __init__(self, vidid: int, requestedframes: SalientFeaturePosition = None):
+    def __init__(self, vidid: int, framerequest: SalientFeaturePosition = None):
         self.vid_id = vidid
         self.videoPath = f'Experiment Data/SampleVideos/Source/{self.vid_id}.mp4'
         self.framesPath = f"Experiment Data/SampleVideos/SourceFrames/{self.vid_id}"
         self.cap = cv2.VideoCapture(self.videoPath)
-        self.requestedFrames = requestedframes
+
+        self.requestedFrames = framerequest.positions.keys() if framerequest is not None else None
 
     def __del__(self):
         self.cap.release()
@@ -31,7 +39,8 @@ class FrameGenerator:
             # This cleanly exits if we can't grab another frame
             if not ret:
                 break
-            if count % 30 == 1:
+            cond = count in self.requestedFrames if self.requestedFrames is not None else count % 30 == 1
+            if cond:
                 cv2.imwrite(f"{self.framesPath}/frame{count}.jpg", frame)
             count += 1
 
