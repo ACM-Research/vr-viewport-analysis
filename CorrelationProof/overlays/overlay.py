@@ -107,14 +107,25 @@ class DataParser:
         self.generateframes()
         self.importusertraces()
 
-    def usertraces_with_predicate(self, q: QuestionnaireParser, pred: Predicate = None):
+    def usertraces_with_predicate(self, q: QuestionnaireParser, pred: Predicate = None, frame: int = None):
         """A generator function that takes the imported User Trace data and yields
         the next Trace that matches the predicate pred."""
+        # I'm probably overlooking a great way to prevent this code duplication.
         for trace in self.usertraces:
             if pred is None:
-                yield trace
+                if frame is None:
+                    yield trace
+                elif trace[1] == frame:
+                    yield trace
+                else:
+                    pass
             elif pred(q, trace):
-                yield trace
+                if frame is None:
+                    yield trace
+                elif trace[1] == frame:
+                    yield trace
+                else:
+                    pass
 
 
 class OverlayPlayer:
@@ -155,10 +166,7 @@ class OverlayPlayer:
                 self.renderrectangle(plt, feature.positions[frame], self.salientcolor)
 
         # Render new User Traces.
-        for trace in self.data.usertraces_with_predicate(self.data.quesparser, self.predicate):
-            # This part is probably super inefficient
-            if trace[1] != frame:
-                continue
+        for trace in self.data.usertraces_with_predicate(self.data.quesparser, self.predicate, frame):
 
             self.renderrectangle(plt, trace[2], self.tracecolor)
 
