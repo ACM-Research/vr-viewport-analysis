@@ -129,6 +129,7 @@ class DataParser:
 
 
 class OverlayPlayer:
+    predicate: DataParser.Predicate
     pauseinterval: float
     salientcolor: str
     tracecolor: str
@@ -138,7 +139,7 @@ class OverlayPlayer:
         self.data = parser
         self.salientcolor = 'r'
         self.tracecolor = 'g'
-        self.pauseinterval = 0.5
+        self.pauseinterval = 0.0001
         self.predicate = pred
 
     def render(self):
