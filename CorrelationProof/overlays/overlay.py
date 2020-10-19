@@ -1,4 +1,4 @@
-from typing import Tuple, List, Dict
+from typing import Tuple, List, Dict, Callable
 
 import pandas as pd
 from PIL import Image
@@ -36,10 +36,14 @@ class Frame:
 
 
 class DataParser:
+    # Single trace: the user ID, the frame it was on, and the position projected to 2D
+    UserTrace = Tuple[str, int, Tuple[float, float]]
+    # Predicate function for exclusion of user traces based on background questionnaire
+    Predicate = Callable[[QuestionnaireParser, UserTrace], bool]
+
     salparser: SalientFeatureParser
     quesparser: QuestionnaireParser
-    # List of a single trace: the user ID, the frame it was on, and the position projected to 2D
-    usertraces: List[Tuple[str, int, Tuple[float, float]]]
+    usertraces: List[UserTrace]
     basedir: str
     vidid: int
     questionnairepath: str
@@ -111,6 +115,15 @@ class DataParser:
         self.generateframes()
         self.importusertraces()
 
+    def usertraces_with_predicate(self, q: QuestionnaireParser, pred: Predicate = None):
+        """A generator function that takes the imported User Trace data and yields
+        the next Trace that matches the predicate pred."""
+        for trace in self.usertraces:
+            if pred is None:
+                yield trace
+            elif pred(q, trace):
+                yield trace
+
 
 class OverlayPlayer:
     pauseinterval: int
@@ -118,11 +131,12 @@ class OverlayPlayer:
     tracecolor: str
     data: DataParser
 
-    def __init__(self, parser: DataParser):
+    def __init__(self, parser: DataParser, pred: DataParser.Predicate = None):
         self.data = parser
         self.salientcolor = 'r'
         self.tracecolor = 'g'
         self.pauseinterval = 0.5
+        self.predicate = pred
 
     def render(self):
         for frame in self.data.salparser.frameList:
@@ -149,12 +163,10 @@ class OverlayPlayer:
                 self.renderrectangle(plt, feature.positions[frame], self.salientcolor)
 
         # Render new User Traces.
-        for trace in self.data.usertraces:
+        for trace in self.data.usertraces_with_predicate(self.data.quesparser, self.predicate):
             # This part is probably super inefficient
             if trace[1] != frame:
                 continue
-
-            # The predicate function should be added here.
 
             self.renderrectangle(plt, trace[2], self.tracecolor)
 
@@ -249,6 +261,10 @@ def draw_rectangle(plotter, pos: Tuple[int, int], color):
     plotter.gca().add_patch(rect)
 
 
+def sample_predicate(q: QuestionnaireParser, trace: DataParser.UserTrace) -> bool:
+    return q.participants[trace[0]].mobilevr >= 2
+
+
 def main():
     # vid_id = 24
     # quesparser = QuestionnaireParser()
@@ -259,7 +275,7 @@ def main():
     #     json.dump(data, f)
     data = DataParser(24, "C:/Users/qwe/Documents/vr-viewport-analysis")
     data.generatedata()
-    renderer = OverlayPlayer(data)
+    renderer = OverlayPlayer(data, sample_predicate)
     renderer.render()
 
 
