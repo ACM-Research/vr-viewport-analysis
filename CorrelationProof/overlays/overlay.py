@@ -1,25 +1,17 @@
+import math
+import os
 from typing import Tuple, List, Dict, Callable
 
+import matplotlib.patches as patches
+import matplotlib.pyplot as plt
 import pandas as pd
 from PIL import Image
-import matplotlib.pyplot as plt
-import matplotlib.patches as patches
-import math
-import json
 
-from QuestionnaireParser import QuestionnaireParser, Questionnaire
+from QuestionnaireParser import QuestionnaireParser
+from SalientFeatureParser import SalientFeatureParser
 from vidToFrames import FrameGenerator
-from SalientFeatureParser import SalientFeatureParser, SalientFeaturePosition
 
-import os
 print(os.getcwd())
-
-
-def sample_exclusion_fxn(predicate: str, questionnaire: QuestionnaireParser) -> bool:
-    """This family of functions dictates how users should be excluded from the process
-    based on their answers from the background questionnaire."""
-    #return questionnaire.participants[predicate].mobilevr >= 2
-    return True
 
 
 class Frame:
@@ -126,7 +118,7 @@ class DataParser:
 
 
 class OverlayPlayer:
-    pauseinterval: int
+    pauseinterval: float
     salientcolor: str
     tracecolor: str
     data: DataParser
@@ -152,7 +144,7 @@ class OverlayPlayer:
         except FileNotFoundError:
             return
         # TODO: Rewrite this using object-oriented pyplot
-        img = plt.imshow(im)
+        plt.imshow(im)
 
         # Remove the plots from the previous frame.
         [p.remove() for p in reversed(plt.gca().patches)]
@@ -170,7 +162,7 @@ class OverlayPlayer:
 
             self.renderrectangle(plt, trace[2], self.tracecolor)
 
-    def renderrectangle(self, plotter, pos: Tuple[int, int], color: str):
+    def renderrectangle(self, plotter, pos: Tuple[float, float], color: str):
         rect = patches.Rectangle(pos, 60, 60, linewidth=3, edgecolor=color, facecolor='none')
         plotter.gca().add_patch(rect)
 
