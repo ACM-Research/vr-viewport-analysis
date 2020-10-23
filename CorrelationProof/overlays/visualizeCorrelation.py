@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Tuple
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -75,8 +75,7 @@ class CorrelationVisualizer:
         self.graph.set_data(self.pointstoxy(points))
 
         # show image
-        im = Image.open(
-            f"Experiment Data/SampleVideos/SourceFrames/{self.data.vidid}/frame{self.ij * 30 + 1}.jpg")
+        im = Image.open(self.data.imagepath % int(self.ij * 30 + 1))
         #   # .transpose(Image.FLIP_TOP_BOTTOM)
         if self.img is None:
             self.img = self.axes[0].imshow(im)
@@ -134,7 +133,7 @@ class CorrelationVisualizer:
 
         return self.graph, self.in_range, self.others
 
-    def render(self):
+    def render(self) -> Tuple[float, float]:
         # animation (59 goes up to 59 * 30 + 1 = 1771'th frame)
         self.ani = FuncAnimation(self.fig, self.animate, frames=59, interval=500, repeat=False, fargs=(self,))
 
@@ -143,8 +142,8 @@ class CorrelationVisualizer:
 
         # show animation (alternate comment with ani.save())
         plt.show()
-        print(1.0 * self.totalArea / self.circleCount)
-        print(1.0 * self.total / self.ij)
+        plt.close()
+        return 1.0 * self.totalArea / self.circleCount, 1.0 * self.total / self.ij
 
     @staticmethod
     def pointstoxy(points):
