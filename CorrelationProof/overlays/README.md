@@ -14,6 +14,10 @@ To prove that there is a correlation, it might be easier to first observe users'
 
 ![demo](demo.gif)
 
+On the other hand, within our salient feature traces our team had to account for missing / inaccurate trace data within `Salient Feature Traces/VIDEO_ID/POI.xlsx`, and our `visualizeCorrelation.py` file found it difficult to correlate these points correctly. So there is a script that helps out with that.
+
+`generatePoints.py` utilizes the Oriented FAST and Rotated BRIEF keypoint detector algorithm that stores the newly generated keypoints into the `newPOI.json` file.
+
 ## Technical Implementation
 
 `vidToFrames.py` uses OpenCV to read frame by frame and write every 30 frames.
