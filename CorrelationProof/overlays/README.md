@@ -18,6 +18,8 @@ On the other hand, within our salient feature traces our team had to account for
 
 `generatePoints.py` utilizes the Oriented FAST and Rotated BRIEF keypoint detector algorithm that stores the newly generated keypoints into the `newPOI.json` file.
 
+![Image of ORB algorithm](ORB.PNG)
+
 ## Technical Implementation
 
 `vidToFrames.py` uses OpenCV to read frame by frame and write every 30 frames.
