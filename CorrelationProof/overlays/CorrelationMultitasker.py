@@ -32,8 +32,21 @@ class CorrelationMultitasker:
             self.results.append(vis.render())
 
     def showresults(self):
+        """Note that the list of predicates MUST have predicate_base first so that a baseline
+        can be established. Otherwise this will crash with a div by 0."""
+        basecorrelation = 0
         for predicate, result in zip(self.predicates, self.results):
-            print(f"Predicate {predicate.__name__} gives results {result[0]}, {result[1]}")
+            res = result[1]
+            if predicate.__name__ == "predicate_base":
+                basecorrelation = res
+            ratio, count = self.data.quesparser.getratio(predicate)
+            actualres = res / basecorrelation
+            print(f"Predicate {predicate.__name__} gives correlation result {res}")
+            print(f"Correlation result compared to base is: {actualres * 100:.2f}%")
+            print(f"Ratio of participants responding positive to Predicate {predicate.__name__} is: {ratio * 100:.2f}%")
+            # This subtraction is commutative through absolute value, since one is bigger than the other.
+            print(f"Degree of difference between correlation and ratio is: {abs(ratio - actualres) * 100:.2f}%")
+            print(f"Number of Participants for Predicate {predicate.__name__} is: {count}\n")
 
 
 def predicate_base(q: QuestionnaireParser, trace: DataParser.UserTrace) -> bool:

@@ -1,5 +1,5 @@
 from tkinter import filedialog, messagebox
-from typing import Dict
+from typing import Dict, List, Any, Tuple
 import pandas as pd
 from pandas import DataFrame
 
@@ -51,6 +51,25 @@ class QuestionnaireParser:
             # We, uh, don't actually need this file handle. Just its path.
             file.close()
         self.sheet = pd.read_csv(filepath)
+
+    def getratio(self, pred) -> Tuple[float, int]:
+        """Returns ratio of participants responding positive to a Predicate
+        (respective to the whole population)
+        and the number of participants who answered positive."""
+        count = 0
+        for participant in self.participants.keys():
+            # OK, so... This is just straight up hacky.
+            # Good news is, this is the first time I've had to say that
+            # during this entire project!
+            # What's it doing, you ask?
+            # It's passing the QuestionnaireParser, and a fake user
+            # trace that contains the study ID in question...
+            # Which the predicate then uses to go into the parser and retreive
+            # the participant that we have right here. This is... bad design.
+            # Oops.
+            if pred(self, (participant,)):
+                count += 1
+        return count / len(self.participants), count
 
     @staticmethod
     def stripthings(value: str) -> int:
