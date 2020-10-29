@@ -54,9 +54,6 @@ class DataParser:
         self.imagepath = f"{basedir}/Experiment Data/SampleVideos/SourceFrames/{self.vidid}/frame%d.jpg"
 
         self.frames = {}
-        # Cheap to construct- the image isn't actually parsed with Image.open, it's a lazy fxn
-        with Image.open(self.imagepath % 1) as im:
-            self.imagesize = (im.size[0], im.size[1])
 
     @staticmethod
     def convvec2angl(vector):
@@ -70,7 +67,7 @@ class DataParser:
 
     def generateframes(self):
         """Generate frames on demand."""
-        FrameGenerator(self.vidid, self.salparser.features[0]).generateframes()
+        FrameGenerator(self.basedir, self.vidid, self.salparser.features[0]).generateframes()
 
     def importusertraces(self):
         """Note that this parser is very simple in nature and doesn't really *need*
@@ -105,6 +102,11 @@ class DataParser:
     def generatedata(self):
         self.initparsers()
         self.generateframes()
+
+        # Cheap to construct- the image isn't actually parsed with Image.open, it's a lazy fxn
+        with Image.open(self.imagepath % 1) as im:
+            self.imagesize = (im.size[0], im.size[1])
+
         self.importusertraces()
 
     def usertraces_with_predicate(self, q: QuestionnaireParser, pred: Predicate = None, frame: int = None):
