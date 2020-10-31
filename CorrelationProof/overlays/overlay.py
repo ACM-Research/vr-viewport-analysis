@@ -67,9 +67,11 @@ class DataParser:
         self.salparser = SalientFeatureParser(self.salienttracepath)
 
     def generateframes(self):
-        """Generate frames on demand."""
+        """Generate frames on demand. Also generates self.requestedFrames in the process,
+        which is required for the Visualizer."""
         self.framegenerator = FrameGenerator(self.basedir, self.vidid, self.salparser.features[0])
         self.framegenerator.generateframes()
+        self.framegenerator.checkframelist()
 
     def importusertraces(self):
         """Note that this parser is very simple in nature and doesn't really *need*

@@ -1,11 +1,7 @@
 """Note to self...
 A better optimization would be to deliver frames on demand
 and spin off a task to flush that frame to disk."""
-
-
-
-
-
+from typing import List, Optional
 
 import cv2
 import os
@@ -13,6 +9,7 @@ from CorrelationProof.overlays.SalientFeatureParser import SalientFeaturePositio
 
 
 class FrameGenerator:
+    requestedFrames: Optional[List[int]]
     cap: cv2.cv2.VideoCapture
     vid_id: int
 
@@ -22,13 +19,29 @@ class FrameGenerator:
         self.framesPath = f'{basedir}/Experiment Data/SampleVideos/SourceFrames/{self.vid_id}'
         self.cap = cv2.VideoCapture(self.videoPath)
 
-        self.requestedFrames = framerequest.positions.keys() if framerequest is not None else None
+        self.requestedFrames = list(framerequest.positions.keys()) if framerequest is not None else None
 
     def __del__(self):
         self.cap.release()
         cv2.destroyAllWindows()
 
+    def checkframelist(self):
+        """Double checks requestedFrames against the list of frames actually
+        generated. Note that you MUST call this for certain videos!
+        Certain Salient Traces will request frames that don't actually exist.
+        This cannot be called in the constructor, because frames may have not yet
+        been generated. Make sure you call generateframes() first."""
+        for index, frame in enumerate(self.requestedFrames):
+            if not os.path.exists(self.framesPath):
+                raise Exception("Cannot double check frames if frames have not been generated!")
+
+            path = f"{self.framesPath}/frame{frame}.jpg"
+            if not os.path.exists(path):
+                del self.requestedFrames[index]
+
     def generateframes(self):
+        """Generates frames for videos as needed. Will not
+        generate frames if they've already been generated."""
         # Caching mechanism- don't generate if frames were already rendered
         if os.path.exists(self.framesPath):
             return
