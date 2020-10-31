@@ -103,7 +103,7 @@ class SalientFeatureParser:
         if y is None:
             warn(f"Missing X position on row {ycell.row}, column {ycell.column}", category=RuntimeWarning)
 
-        self.features[featurenumber].add(frame, x, y)
+        self.features[featurenumber].add(int(frame), x, y)
 
     def importfeatures(self):
         for i, featureNumber in zip(range(0, self.featureCount * 2, 2), range(self.featureCount)):
@@ -113,7 +113,7 @@ class SalientFeatureParser:
             for row in self.sheet.iter_rows(min_row=2):  # Row 2 for skipping titles
                 frame = row[0]
                 if frame.value not in self.frameList:
-                    self.frameList.append(frame.value)
+                    self.frameList.append(int(frame.value))
                 x = row[1 + i]
                 y = row[1 + i + 1]  # Skip frame position, then skip X column
                 self.importfeature(featureNumber, frame, x, y)
