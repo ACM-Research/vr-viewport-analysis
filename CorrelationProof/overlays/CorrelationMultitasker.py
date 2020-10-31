@@ -17,18 +17,19 @@ class CorrelationMultitasker:
     predicates: Tuple[DataParser.Predicate]
     results: List[Tuple[float, float]]
 
-    def __init__(self, data: DataParser, thres: int, predicates: Tuple[DataParser.Predicate]):
+    def __init__(self, data: DataParser, thres: int, predicates: Tuple[DataParser.Predicate], delay: int):
         self.data = data
         self.thres = thres
         self.predicates = predicates
         self.results = []
+        self.delay = delay
 
     def render(self):
         # So this WOULD be multithreaded, but...
         # Python doesn't have interpreter-level multithreading due to the GIL :(
         # I was hoping to take advantage of the 16 threads on this computer :(
         for predicate in self.predicates:
-            vis = CorrelationVisualizer(self.data, self.thres, predicate)
+            vis = CorrelationVisualizer(self.data, self.thres, predicate, self.delay)
             self.results.append(vis.render())
 
     def showresults(self):
@@ -87,9 +88,10 @@ def predicate_inexperienced(q: QuestionnaireParser, trace: DataParser.UserTrace)
 
 
 def main():
-    data = DataParser(12, "C:/Users/qwe/Documents/vr-viewport-analysis")
+    data = DataParser(18, "C:/Users/qwe/Documents/vr-viewport-analysis")
     data.generatedata()
     threshold = 250
+    delay = 50
 
     predicates_used = (predicate_base, predicate_male, predicate_female, predicate_experience_with_mobile_vr,
                        predicate_experience_with_room_vr, predicate_experience_with_360video,
@@ -97,7 +99,7 @@ def main():
 
     # PyCharm makes a mistake when type checking predicates_used here
     # noinspection PyTypeChecker
-    multitasker = CorrelationMultitasker(data, threshold, predicates_used)
+    multitasker = CorrelationMultitasker(data, threshold, predicates_used, delay)
     multitasker.render()
     multitasker.showresults()
 

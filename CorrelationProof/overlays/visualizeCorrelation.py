@@ -70,16 +70,18 @@ class CorrelationVisualizer:
 
         # graph salient points
         # points = data[frameindex]["salient"]
+        if frameindex not in self.data.framegenerator.requestedFrames:
+            return self.graph, self.in_range, self.others
 
         points = []
         # Inefficent and lazy TBH
         for feature in self.data.salparser.features:
-            if None not in feature.positions[frameindex * 30 + 1]:
-                points.append(feature.positions[frameindex * 30 + 1])
+            if None not in feature.positions[frameindex]:
+                points.append(feature.positions[frameindex])
         self.graph.set_data(self.pointstoxy(points))
 
         # show image
-        im = Image.open(self.data.imagepath % int(self.ij * 30 + 1))
+        im = Image.open(self.data.imagepath % int(frameindex))
         #   # .transpose(Image.FLIP_TOP_BOTTOM)
         if self.img is None:
             self.img = self.axes[0].imshow(im)
@@ -102,7 +104,7 @@ class CorrelationVisualizer:
         # points2 = data[f]["trace"]
         # Strip out user ID and frame
         points2 = [trace[2] for trace in
-                   self.data.usertraces_with_predicate(self.data.quesparser, self.predicate, frameindex * 30 + 1)]
+                   self.data.usertraces_with_predicate(self.data.quesparser, self.predicate, frameindex)]
         in_range_points = []
         out_range_points = []
         for p in points2:
@@ -139,7 +141,8 @@ class CorrelationVisualizer:
 
     def render(self) -> Tuple[float, float]:
         # animation (59 goes up to 59 * 30 + 1 = 1771'th frame)
-        self.ani = FuncAnimation(self.fig, self.animate, frames=59, interval=self.delay, repeat=False, fargs=(self,))
+        self.ani = FuncAnimation(self.fig, self.animate, frames=self.data.framegenerator.requestedFrames,
+                                 interval=self.delay, repeat=False, fargs=(self,))
 
         # uncomment to save (alternate comment with plt.show())
         # ani.save('CorrelationProof/overlays/demo.gif', writer='imagemagick', fps=3)
