@@ -41,6 +41,7 @@ class DataParser:
     questionnairepath: str
     frames: Dict[int, Frame]
     imagesize: Tuple[int, int]
+    framegenerator: FrameGenerator
     
     def __init__(self, vidid: int, basedir: str):
         """This constructor only initializes the cheap things to construct.
@@ -67,7 +68,8 @@ class DataParser:
 
     def generateframes(self):
         """Generate frames on demand."""
-        FrameGenerator(self.basedir, self.vidid, self.salparser.features[0]).generateframes()
+        self.framegenerator = FrameGenerator(self.basedir, self.vidid, self.salparser.features[0])
+        self.framegenerator.generateframes()
 
     def importusertraces(self):
         """Note that this parser is very simple in nature and doesn't really *need*

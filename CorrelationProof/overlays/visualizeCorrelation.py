@@ -34,7 +34,9 @@ class CorrelationVisualizer:
     in_range: Line2D
     others: Line2D
 
-    def __init__(self, data: DataParser, threshold: int, pred: DataParser.Predicate = None):
+    delay: int
+
+    def __init__(self, data: DataParser, threshold: int, pred: DataParser.Predicate = None, delay: int = 500):
         self.data = data
         self.thres = threshold
         self.predicate = pred
@@ -58,6 +60,8 @@ class CorrelationVisualizer:
         self.circleCount = 0
         self.totalArea = 0
         self.pointCount = 0
+
+        self.delay = delay
 
     @staticmethod
     def animate(frameindex, *fargs):
@@ -135,7 +139,7 @@ class CorrelationVisualizer:
 
     def render(self) -> Tuple[float, float]:
         # animation (59 goes up to 59 * 30 + 1 = 1771'th frame)
-        self.ani = FuncAnimation(self.fig, self.animate, frames=59, interval=500, repeat=False, fargs=(self,))
+        self.ani = FuncAnimation(self.fig, self.animate, frames=59, interval=self.delay, repeat=False, fargs=(self,))
 
         # uncomment to save (alternate comment with plt.show())
         # ani.save('CorrelationProof/overlays/demo.gif', writer='imagemagick', fps=3)
