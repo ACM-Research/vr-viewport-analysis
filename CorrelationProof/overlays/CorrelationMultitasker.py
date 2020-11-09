@@ -4,6 +4,7 @@
 # (see how this is done in some samples below) and compare their questionnaire values
 # (see class Questionnaire) against what you're interested in.
 # Finally, in the main function, add your predicate function to the list of predicates tested.
+from multiprocessing import Pool
 from typing import List, Tuple
 
 from QuestionnaireParser import QuestionnaireParser
@@ -36,6 +37,7 @@ class CorrelationMultitasker:
         """Note that the list of predicates MUST have predicate_base first so that a baseline
         can be established. Otherwise this will crash with a div by 0."""
         basecorrelation = 0
+        print(f"Results for video {self.data.vidid}:\n\n", end='')
         for predicate, result in zip(self.predicates, self.results):
             res = result[1]
             if predicate.__name__ == "predicate_base":
@@ -87,9 +89,8 @@ def predicate_inexperienced(q: QuestionnaireParser, trace: DataParser.UserTrace)
         q.participants[trace[0]].vrvideo < 2
 
 
-def main():
-    data = DataParser(18, "C:/Users/qwe/Documents/vr-viewport-analysis")
-    data.generatedata()
+def go(vidid: int): # , threshold: int, delay: int, predicates_used: List):
+
     threshold = 250
     delay = 50
 
@@ -97,11 +98,23 @@ def main():
                        predicate_experience_with_room_vr, predicate_experience_with_360video,
                        predicate_older_than_25, predicate_younger_than_25, predicate_inexperienced)
 
+    data = DataParser(vidid, "C:/Users/qwe/Documents/vr-viewport-analysis")
+    data.generatedata()
     # PyCharm makes a mistake when type checking predicates_used here
     # noinspection PyTypeChecker
     multitasker = CorrelationMultitasker(data, threshold, predicates_used, delay)
     multitasker.render()
     multitasker.showresults()
+
+
+def main():
+    # This is a tuple of videos for which we have complete data.
+    complete_videos = (3, 6, 12, 18, 23, 24, 29, 30)
+    # complete_videos = (18, 24)
+    # for video in complete_videos:
+    #    Thread(target=go, args=(video, threshold, delay, predicates_used)).start()
+    with Pool() as p:
+        p.map(go, complete_videos)
 
 
 if __name__ == "__main__":
