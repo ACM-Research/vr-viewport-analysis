@@ -5,7 +5,7 @@ from typing import List, Optional
 
 import cv2
 import os
-from CorrelationProof.overlays.SalientFeatureParser import SalientFeaturePosition
+from SalientFeatureParser import SalientFeaturePosition
 
 
 class FrameGenerator:
