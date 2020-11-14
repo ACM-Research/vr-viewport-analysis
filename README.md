@@ -28,7 +28,7 @@ In this picture, we can see why having a larger radius is not necessarily a good
 
 To visualize the clusters of user viewports, we performed k-means clustering on each frame and compared it against our salient features. We can think of these k-means centroids as the best possible predictions, as they are the best clustering prediction based on real user data. We can see that salient features do a better job than random prediction, but falls shorts in several frames where the gap between prefect prediction and salient feature prediction is quite large.
 
-![](https://raw.githubusercontent.com/ACM-Research/vr-viewport-analysis/master/CorrelationProof/pictures/k_means_upper_bound.png)
+![](https://raw.githubusercontent.com/ACM-Research/vr-viewport-analysis/master/CorrelationProof/pictures/k_means_upper_bound.PNG)
 
 In this picture, green dots are user viewports, red dots are k-means centroids, and the blue dot is the salient feature. The image is left out on the top frame.
 
@@ -36,7 +36,7 @@ In this picture, green dots are user viewports, red dots are k-means centroids, 
 
 Using a [Kaggle Notebook](https://raw.githubusercontent.com/ACM-Research/vr-viewport-analysis/master/CorrelationProof/salient-feature-traiing.ipynb), we were able to train a model that was on average 11% off from the user viewport k-means clustering centroids. The picture above is an example of the prediction result using the model. 
 
-![](https://raw.githubusercontent.com/ACM-Research/vr-viewport-analysis/master/CorrelationProof/pictures/dist.png)
+![](https://raw.githubusercontent.com/ACM-Research/vr-viewport-analysis/master/CorrelationProof/pictures/dist.PNG)
 
 The distribution of loss is skewed to the right with a median of 3755.59 and an IQR of 1735.22. 
 
