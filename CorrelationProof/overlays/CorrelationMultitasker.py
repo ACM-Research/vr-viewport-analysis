@@ -51,6 +51,24 @@ class CorrelationMultitasker:
             print(f"Degree of difference between correlation and ratio is: {abs(ratio - actualres) * 100:.2f}%")
             print(f"Number of Participants for Predicate {predicate.__name__} is: {count}\n")
 
+    def presentation_csv_header(self) -> str:
+        return "Video ID, " + ''.join([f"{predicate.__name__}, " for predicate in self.predicates])
+
+    def presentation_csv(self) -> str:
+        """Cheaply and quickly throws together one line of CSV for the presentation."""
+        basecorrelation = 0
+        out = f"Video {self.data.vidid}, "
+        for predicate, result in zip(self.predicates, self.results):
+            res = result[1]
+            if predicate.__name__ == "predicate_base":
+                basecorrelation = res
+                out += f"{basecorrelation:.2f}, "
+            else:
+                ratio, count = self.data.quesparser.getratio(predicate)
+                actualres = res / basecorrelation
+                out += f"{(ratio - actualres) * 100:.2f}%, "
+        return out
+
 
 def predicate_base(q: QuestionnaireParser, trace: DataParser.UserTrace) -> bool:
     return True
@@ -89,14 +107,12 @@ def predicate_inexperienced(q: QuestionnaireParser, trace: DataParser.UserTrace)
         q.participants[trace[0]].vrvideo < 2
 
 
-def go(vidid: int): # , threshold: int, delay: int, predicates_used: List):
+def go(vidid: int) -> Tuple[str, str]:  # , threshold: int, delay: int, predicates_used: List):
 
     threshold = 250
     delay = 50
 
-    predicates_used = (predicate_base, predicate_male, predicate_female, predicate_experience_with_mobile_vr,
-                       predicate_experience_with_room_vr, predicate_experience_with_360video,
-                       predicate_older_than_25, predicate_younger_than_25, predicate_inexperienced)
+    predicates_used = (predicate_base, predicate_male, predicate_female, predicate_inexperienced)
 
     data = DataParser(vidid, "C:/Users/qwe/Documents/vr-viewport-analysis")
     data.generatedata()
@@ -105,6 +121,7 @@ def go(vidid: int): # , threshold: int, delay: int, predicates_used: List):
     multitasker = CorrelationMultitasker(data, threshold, predicates_used, delay)
     multitasker.render()
     multitasker.showresults()
+    return multitasker.presentation_csv_header(), multitasker.presentation_csv()
 
 
 def main():
@@ -113,8 +130,14 @@ def main():
     # complete_videos = (18, 24)
     # for video in complete_videos:
     #    Thread(target=go, args=(video, threshold, delay, predicates_used)).start()
+    csv_lines = []
     with Pool() as p:
-        p.map(go, complete_videos)
+        csv_lines = p.map(go, complete_videos)
+
+    with open('output.csv', 'w') as f:
+        f.write(csv_lines[0][0])
+        f.write('\n')
+        f.writelines([f"{line[1]}\n" for line in csv_lines])
 
 
 if __name__ == "__main__":
