@@ -5,7 +5,7 @@
 # (see class Questionnaire) against what you're interested in.
 # Finally, in the go function, add your predicate function to the list of predicates tested.
 from multiprocessing import Pool
-from typing import List, Tuple, IO
+from typing import List, Tuple
 
 from QuestionnaireParser import QuestionnaireParser
 from overlay import DataParser
@@ -54,9 +54,23 @@ class CorrelationMultitasker:
             print(f"Degree of difference between correlation and ratio is: {abs(ratio - actualres) * 100:.2f}%")
             print(f"Number of Participants for Predicate {predicate.__name__} is: {count}\n")
 
-    # @staticmethod
-    # def setupfile(f: IO):
-    #     pass
+    def presentation_csv_header(self) -> str:
+        return "Video ID, " + ''.join([f"{predicate.__name__}, " for predicate in self.predicates])
+
+    def presentation_csv(self) -> str:
+        """Cheaply and quickly throws together one line of CSV for the presentation."""
+        basecorrelation = 0
+        out = f"Video {self.data.vidid}, "
+        for predicate, result in zip(self.predicates, self.results):
+            res = result[1]
+            if predicate.__name__ == "predicate_base":
+                basecorrelation = res
+                out += f"{basecorrelation:.2f}, "
+            else:
+                ratio, count = self.data.quesparser.getratio(predicate)
+                actualres = res / basecorrelation
+                out += f"{(ratio - actualres) * 100:.2f}%, "
+        return out
 
 
 def predicate_base(q: QuestionnaireParser, trace: DataParser.UserTrace) -> bool:
@@ -96,7 +110,7 @@ def predicate_inexperienced(q: QuestionnaireParser, trace: DataParser.UserTrace)
         q.participants[trace[0]].vrvideo < 2
 
 
-def go(vidid: int) -> CorrelationMultitasker:  # , threshold: int, delay: int, predicates_used: List):
+def go(vidid: int) -> Tuple[str, str]:  # , threshold: int, delay: int, predicates_used: List):
 
     threshold = 250
     delay = 50
@@ -111,22 +125,24 @@ def go(vidid: int) -> CorrelationMultitasker:  # , threshold: int, delay: int, p
     # noinspection PyTypeChecker
     multitasker = CorrelationMultitasker(data, threshold, predicates_used, delay)
     multitasker.render()
-    return multitasker
+    multitasker.showresults()
+    return multitasker.presentation_csv_header(), multitasker.presentation_csv()
 
 
 def main():
     # This is a tuple of videos for which we have complete data.
-    # (3, 6, 12, 18, 23, 24, 29, 30)
-    complete_videos = (6,)
-    # Multithread all videos using the multiprocessing module.
-    results = []
+    complete_videos = (3, 6, 12, 18, 23, 24, 29, 30)
+    # complete_videos = (18, 24)
+    # for video in complete_videos:
+    #    Thread(target=go, args=(video, threshold, delay, predicates_used)).start()
+    csv_lines = []
     with Pool() as p:
-        results = p.map(go, complete_videos)
-    # with open("output.csv", "w") as f:
-    #     results[0].setupfile(f)
-    for result in results:
-        result.showresults()
-        # result.writeresults(f)
+        csv_lines = p.map(go, complete_videos)
+
+    with open('output.csv', 'w') as f:
+        f.write(csv_lines[0][0])
+        f.write('\n')
+        f.writelines([f"{line[1]}\n" for line in csv_lines])
 
 
 if __name__ == "__main__":
