@@ -18,7 +18,7 @@ Through the taxonomic classification of VR Viewport videos and the usage of mach
 
 ![](https://raw.githubusercontent.com/ACM-Research/vr-viewport-analysis/master/CorrelationProof/overlays/demo.gif)
 
-In this video, each red circle represents a radius around a salient feature. The orange dots are user viewport centers that are included in at least one circle, and the green dots are those that are not contained in any certain. The graph on the bottom shows the correlation ratio for one specific frame.
+In this video, each red circle represents a radius around a salient feature. The orange dots are user viewport centers that are included in at least one circle, and the green dots are those that are not contained in any circle. The graph on the bottom shows the correlation ratio for one specific frame.
 
 ![](https://raw.githubusercontent.com/ACM-Research/vr-viewport-analysis/master/CorrelationProof/pictures/correlation_vs_radius.PNG)
 
@@ -40,4 +40,4 @@ Using a [Kaggle Notebook](https://raw.githubusercontent.com/ACM-Research/vr-view
 
 The distribution of loss is skewed to the right with a median of 3755.59 and an IQR of 1735.22. 
 
-With some more calculation, we note that for a radius of 89 (covering 60% of the screen at max), we can predict 90% of the points, which is 50% better than random prediction. 
+With some more calculation, we note that for a radius of 89 (covering 60% of the screen at max), we can predict 90% of the points, which is 50% better than random prediction. This shows that there is a sizable increase in efficiency through using a prediction model. With additional image processing layers and more model parameter tuning, the model could be improved to greatly increase prediction accuracy.
