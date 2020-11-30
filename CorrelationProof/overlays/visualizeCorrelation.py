@@ -36,6 +36,8 @@ class CorrelationVisualizer:
 
     delay: int
 
+    ok: bool
+
     def __init__(self, data: DataParser, threshold: int, pred: DataParser.Predicate = None, delay: int = 500):
         self.data = data
         self.thres = threshold
@@ -62,6 +64,14 @@ class CorrelationVisualizer:
         self.pointCount = 0
 
         self.delay = delay
+
+        # Some videos may not have ANY results for a specific predicate.
+        # Check the length of the predicate results returned with no specific
+        # frame requested (last optional arg not passed.)
+        # A little inefficient, but very important.
+        self.ok = \
+            len([trace[2] for trace in self.data.usertraces_with_predicate(
+                self.data.quesparser, self.predicate)]) != 0
 
     @staticmethod
     def animate(frameindex, *fargs):

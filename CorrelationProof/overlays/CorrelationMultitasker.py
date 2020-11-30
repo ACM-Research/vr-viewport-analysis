@@ -3,9 +3,9 @@
 # QuestionnaireParser class. Access the user's questionnaire data through their ID
 # (see how this is done in some samples below) and compare their questionnaire values
 # (see class Questionnaire) against what you're interested in.
-# Finally, in the main function, add your predicate function to the list of predicates tested.
+# Finally, in the go function, add your predicate function to the list of predicates tested.
 from multiprocessing import Pool
-from typing import List, Tuple
+from typing import List, Tuple, IO
 
 from QuestionnaireParser import QuestionnaireParser
 from overlay import DataParser
@@ -25,13 +25,16 @@ class CorrelationMultitasker:
         self.results = []
         self.delay = delay
 
+        # self.fileheader = "Video ID, "
+
     def render(self):
-        # So this WOULD be multithreaded, but...
-        # Python doesn't have interpreter-level multithreading due to the GIL :(
-        # I was hoping to take advantage of the 16 threads on this computer :(
         for predicate in self.predicates:
             vis = CorrelationVisualizer(self.data, self.thres, predicate, self.delay)
-            self.results.append(vis.render())
+            if vis.ok:
+                self.results.append(vis.render())
+            else:
+                # Dummy results for no predicate results (see Visualizer constructor)
+                self.results.append((0, 0))
 
     def showresults(self):
         """Note that the list of predicates MUST have predicate_base first so that a baseline
@@ -50,6 +53,10 @@ class CorrelationMultitasker:
             # This subtraction is commutative through absolute value, since one is bigger than the other.
             print(f"Degree of difference between correlation and ratio is: {abs(ratio - actualres) * 100:.2f}%")
             print(f"Number of Participants for Predicate {predicate.__name__} is: {count}\n")
+
+    # @staticmethod
+    # def setupfile(f: IO):
+    #     pass
 
 
 def predicate_base(q: QuestionnaireParser, trace: DataParser.UserTrace) -> bool:
@@ -89,7 +96,7 @@ def predicate_inexperienced(q: QuestionnaireParser, trace: DataParser.UserTrace)
         q.participants[trace[0]].vrvideo < 2
 
 
-def go(vidid: int): # , threshold: int, delay: int, predicates_used: List):
+def go(vidid: int) -> CorrelationMultitasker:  # , threshold: int, delay: int, predicates_used: List):
 
     threshold = 250
     delay = 50
@@ -104,17 +111,22 @@ def go(vidid: int): # , threshold: int, delay: int, predicates_used: List):
     # noinspection PyTypeChecker
     multitasker = CorrelationMultitasker(data, threshold, predicates_used, delay)
     multitasker.render()
-    multitasker.showresults()
+    return multitasker
 
 
 def main():
     # This is a tuple of videos for which we have complete data.
-    complete_videos = (3, 6, 12, 18, 23, 24, 29, 30)
-    # complete_videos = (18, 24)
-    # for video in complete_videos:
-    #    Thread(target=go, args=(video, threshold, delay, predicates_used)).start()
+    # (3, 6, 12, 18, 23, 24, 29, 30)
+    complete_videos = (6,)
+    # Multithread all videos using the multiprocessing module.
+    results = []
     with Pool() as p:
-        p.map(go, complete_videos)
+        results = p.map(go, complete_videos)
+    # with open("output.csv", "w") as f:
+    #     results[0].setupfile(f)
+    for result in results:
+        result.showresults()
+        # result.writeresults(f)
 
 
 if __name__ == "__main__":
