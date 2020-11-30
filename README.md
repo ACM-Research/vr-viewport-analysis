@@ -2,6 +2,8 @@
 
 Research Poster: [Link](https://raw.githubusercontent.com/ACM-Research/vr-viewport-analysis/master/Research%20Poster.pdf)
 
+![Poster picture](poster.PNG)
+
 ## Introduction
 
 Optimizing VR videos is often a necessity as network usage exceeds the maximum bandwidth available to the device. Past researchers had made significant progress through predicting users' viewport based on previous head movements. However, we believe that the number of salient features in VR videos also play an important role in determining the areas of interest, which can aid efforts to decrease the amount of data transferred. By combining patterns observed through source videos and user's viewport data, it might be possible to further improve on the existing baseline.
