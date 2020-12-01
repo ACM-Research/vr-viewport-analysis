@@ -64,14 +64,14 @@ class DataParser:
 
     def initparsers(self):
         self.quesparser = QuestionnaireParser(self.questionnairepath)
-        self.salparser = SalientFeatureParser(self.salienttracepath)
+        #self.salparser = SalientFeatureParser(self.salienttracepath)
 
     def generateframes(self):
         """Generate frames on demand. Also generates self.requestedFrames in the process,
         which is required for the Visualizer."""
-        self.framegenerator = FrameGenerator(self.basedir, self.vidid, self.salparser.features[0])
+        self.framegenerator = FrameGenerator(self.basedir, self.vidid)#, self.salparser.features[0])
         self.framegenerator.generateframes()
-        self.framegenerator.checkframelist()
+        #self.framegenerator.checkframelist()
 
     def importusertraces(self):
         """Note that this parser is very simple in nature and doesn't really *need*
@@ -95,7 +95,7 @@ class DataParser:
         # draw user trace points
         self.usertraces = []
         for trace_rows, userid in unparsed_user_traces:
-            for frame in self.salparser.frameList:
+            for frame in range(1, 1771, 30):
                 trace_row = trace_rows[frame - 1]  # Be careful about indexing!!
                 arr = [trace_row[5], trace_row[6], trace_row[7]]
                 x, y = self.convvec2angl(arr)
@@ -149,7 +149,7 @@ class OverlayPlayer:
         self.predicate = pred
 
     def render(self):
-        for frame in self.data.salparser.frameList:
+        for frame in range(1, 1771, 30):
             self.renderframe(frame)
             plt.pause(self.pauseinterval)
             plt.draw()
@@ -168,9 +168,9 @@ class OverlayPlayer:
         [p.remove() for p in reversed(plt.gca().patches)]
 
         # Render new Salient Features.
-        for feature in self.data.salparser.features:
-            if None not in feature.positions[frame]:
-                self.renderrectangle(plt, feature.positions[frame], self.salientcolor)
+        # for feature in self.data.salparser.features:
+        #     if None not in feature.positions[frame]:
+        #         self.renderrectangle(plt, feature.positions[frame], self.salientcolor)
 
         # Render new User Traces.
         for trace in self.data.usertraces_with_predicate(self.data.quesparser, self.predicate, frame):
@@ -194,9 +194,9 @@ def main():
     # However, False will run a lot faster (for outputting data file)
     # with open("CorrelationProof/overlays/data.txt", 'w') as f:
     #     json.dump(data, f)
-    data = DataParser(24, "C:/Users/qwe/Documents/vr-viewport-analysis")
+    data = DataParser(5, "C:/Users/qwe/Documents/vr-viewport-analysis")
     data.generatedata()
-    renderer = OverlayPlayer(data, sample_predicate)
+    renderer = OverlayPlayer(data)
     renderer.render()
 
 
