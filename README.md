@@ -45,3 +45,12 @@ Using a [Kaggle Notebook](https://raw.githubusercontent.com/ACM-Research/vr-view
 The distribution of loss is skewed to the right with a median of 3755.59 and an IQR of 1735.22. 
 
 With some more calculation, we note that for a radius of 89 (covering 60% of the screen at max), we can predict 90% of the points, which is 50% better than random prediction. This shows that there is a sizable increase in efficiency through using a prediction model. With additional image processing layers and more model parameter tuning, the model could be improved to greatly increase prediction accuracy.
+
+## Contributors
+- [Agustin Diocares](https://github.com/AgustinDiocares)
+- [David Wank](https://github.com/qwe-q)
+- [Matthew Vu](https://github.com/matthewsvu)
+- [Natasha Trayers](https://github.com/nt87814)
+- [Sunny Guan](https://github.com/sunnyguan)
+- [Bryant Hou](https://github.com/BryantH24) - Research Lead
+- [Dr. Ravi Prakash](https://personal.utdallas.edu/~ravip/) - Faculty Advisor
